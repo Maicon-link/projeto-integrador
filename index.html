@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlowKaffé</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 font-sans">
+ <style>
+    main {
+        background-color: rgb(202, 174, 112);
+    }
+ </style>
+  
+  <header class="bg-yellow-400 text-white p-6 shadow-md">
+    <h1 class="text-3xl font-bold text-center">Cafeteria Kaffé</h1>
+  </header>
+
+  
+  <main class="flex flex-col items-center justify-center p-8 md:p-16">
+
+    
+    <section class="text-center mb-8">
+      <p class="text-gray-700 text-lg md:text-xl">
+        Bem-vindo à Cafeteria Kaffé!<br> Aqui você encontra os melhores cafés artesanais, doces fresquinhos e muito mais.
+      </p>
+    </section>
+
+    
+    <section class="mb-8">
+      <img 
+        src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8Y2FmZSUyMHJlY2lwZXxlbnwwfHx8fDE2OTc3MTY5MjA&ixlib=rb-4.0.3&q=80&w=400" 
+        alt="Café e doces" 
+        class="rounded-lg shadow-lg w-80 md:w-96"
+      >
+    </section>
+
+    
+    <section class="flex flex-col md:flex-row gap-8 w-full max-w-4xl">
+
+      
+      <div class="flex-1 bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold mb-4">Pedidos Pendentes</h2>
+        <form id="form-pedido" class="flex flex-col gap-4 mb-4">
+          <input id="input-pedido" type="text" placeholder="Digite o pedido" class="p-2 border rounded-md w-full" required>
+          <button type="submit" class="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300">
+            Adicionar Pedido
+          </button>
+        </form>
+        <ul id="lista-pedidos" class="flex flex-col gap-2"></ul>
+      </div>
+
+      
+      <div class="flex-1 bg-gray-100 p-6 rounded-lg shadow-md">
+        <h2 class="text-xl font-bold mb-4">Histórico de Pedidos</h2>
+        <ul id="historico-pedidos" class="flex flex-col gap-2"></ul>
+      </div>
+
+    </section>
+
+  </main>
+
+  
+  <footer class="bg-gray-200 text-gray-700 p-6 text-center mt-12">
+    &copy; 2025 Cafeteria Kaffé. Todos os direitos reservados.
+  </footer>
+
+  
+  <script>
+    const form = document.getElementById('form-pedido');
+    const inputPedido = document.getElementById('input-pedido');
+    const listaPedidos = document.getElementById('lista-pedidos');
+    const historicoPedidos = document.getElementById('historico-pedidos');
+
+    let pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
+    let historico = JSON.parse(localStorage.getItem('historico')) || [];
+
+    function atualizarTela() {
+      
+      listaPedidos.innerHTML = '';
+      pedidos.forEach((pedido, index) => {
+        const li = document.createElement('li');
+        li.className = 'flex justify-between items-center p-2 border rounded-md';
+        li.innerHTML = `
+          <span>${pedido.nome}</span>
+          <div class="flex gap-2">
+            <button class="bg-green-400 hover:bg-green-500 text-white py-1 px-2 rounded transition duration-300" onclick="marcarPronto(${index})">
+              Pronto
+            </button>
+            <button class="bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded transition duration-300" onclick="removerPedido(${index})">
+              Remover
+            </button>
+          </div>
+        `;
+        listaPedidos.appendChild(li);
+      });
+
+      // Lista de histórico
+      historicoPedidos.innerHTML = '';
+      historico.forEach((item, index) => {
+        const li = document.createElement('li');
+        li.className = 'flex justify-between items-center p-2 border rounded-md line-through text-gray-400';
+        li.innerHTML = `
+          <span>${item.nome}</span>
+          <button class="bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded transition duration-300" onclick="removerHistorico(${index})">
+            Remover
+          </button>
+        `;
+        historicoPedidos.appendChild(li);
+      });
+
+      localStorage.setItem('pedidos', JSON.stringify(pedidos));
+      localStorage.setItem('historico', JSON.stringify(historico));
+    }
+
+    function marcarPronto(index) {
+      const pedidoPronto = pedidos.splice(index, 1)[0]; // remove do array de pendentes
+      historico.push(pedidoPronto); // adiciona ao histórico
+      atualizarTela();
+    }
+
+    function removerPedido(index) {
+      pedidos.splice(index, 1);
+      atualizarTela();
+    }
+
+    function removerHistorico(index) {
+      historico.splice(index, 1);
+      atualizarTela();
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const pedido = inputPedido.value.trim();
+      if(pedido) {
+        pedidos.push({ nome: pedido });
+        inputPedido.value = '';
+        atualizarTela();
+      }
+    });
+
+    atualizarTela();
+  </script>
+
+</body>
+</html>
